@@ -10,7 +10,8 @@
   },
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "flutter"
   ],
   "scripts": {
     "build": "rslib build && vue-tsc",

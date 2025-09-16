@@ -6,12 +6,11 @@
 # Dist
 node_modules
 dist/
-storybook-static
+
+# Profile
+.rspack-profile-*/
 
 # IDE
 .vscode/*
 !.vscode/extensions.json
 .idea
-flutter
-build
-coverage

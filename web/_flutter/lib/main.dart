@@ -16,9 +16,9 @@ class MyWidget extends StatelessWidget {
       greeting = map['greeting'] as String;
     }
 
-    return const Directionality(
+    return Directionality(
       textDirection: TextDirection.ltr,
-      child: Center(child: Text('')), // on remplace juste après:
+      child: Center(child: Text(greeting)), // on remplace juste après:
     );
   }
 }
