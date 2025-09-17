@@ -1,10 +1,14 @@
-import React, { useEffect, useRef } from "react";
+import React, {useEffect, useState} from "react";
 
-declare global { interface Window { _flutter?: any } }
+declare global {
+    interface Window {
+        _flutter?: any
+    }
+}
 
 // URLs des assets packagés dans ton NPM (pas "import", juste URL)
-const BOOTSTRAP_URL = new URL("../flutter/flutter_bootstrap.js", import.meta.url).toString();
-const DEFAULT_ASSET_BASE = new URL("../flutter/", import.meta.url).toString();
+const CDN_BASE = `https://cdn.jsdelivr.net/npm/${__PKG_NAME__}@${__PKG_VERSION__}/flutter/`;
+const BOOTSTRAP_URL = `${CDN_BASE}bootstrap.js`;
 
 let appPromise: Promise<any> | null = null;   // singleton de l'app Flutter
 let appInstance: any | null = null;
@@ -13,27 +17,34 @@ function loadBootstrap(src: string) {
     if (document.querySelector(`script[data-flutter="${src}"]`)) return Promise.resolve();
     return new Promise<void>((resolve, reject) => {
         const s = document.createElement("script");
-        s.src = src; s.defer = true; s.async = true; s.dataset.flutter = src;
+        s.src = src;
+        s.defer = true;
+        s.async = true;
+        s.dataset.flutter = src;
         s.onload = () => resolve();
         s.onerror = (e) => reject(e);
         document.body.appendChild(s);
     });
 }
 
-async function ensureApp(assetBase: string, renderer?: "skwasm" | "canvaskit") {
+async function ensureApp(renderer?: "skwasm" | "canvaskit") {
     if (appInstance) return appInstance;
     if (!appPromise) {
         appPromise = (async () => {
             await loadBootstrap(BOOTSTRAP_URL);              // charger <script> classique
             return new Promise<any>((resolve) => {
+                //window._flutter!.buildConfig.builds[0].mainJsPath = CDN_BASE + "main.dart.js";
                 window._flutter!.loader.load({
                     config: {
-                        assetBase,                                 // où sont les assets
-                        entrypointBaseUrl: assetBase,              // base pour main.dart.js
-                        renderer,                                  // 'skwasm' ou 'canvaskit'
+                        assetBase: CDN_BASE,                                 // où sont les assets
+                        entrypointBaseUrl: CDN_BASE,              // base pour main.dart.js
+                        //renderer,                                  // 'skwasm' ou 'canvaskit'
                     },
                     onEntrypointLoaded: async (engineInitializer: any) => {
-                        const engine = await engineInitializer.initializeEngine({ multiViewEnabled: true });
+                        const engine = await engineInitializer.initializeEngine({
+                            assetBase: CDN_BASE,
+                            multiViewEnabled: true
+                        });
                         const app = await engine.runApp();         // renvoie l'app multi-view
                         appInstance = app;
                         resolve(app);
@@ -61,39 +72,37 @@ export function FlutterWidget({
                                   height = 420,
                                   className,
                                   style,
-                                  assetBase,
                                   renderer,
                               }: FlutterWidgetProps) {
-    const hostRef = useRef<HTMLDivElement>(null);
-    const viewIdRef = useRef<number | null>(null);
+    const id: string = "flutterwidget";//-" + Math.random().toString(36).substring(7);
+    const [viewId, setViewId] = useState<number | null>(null);
 
     useEffect(() => {
         let cancelled = false;
-        const base = assetBase ?? DEFAULT_ASSET_BASE;
 
         // Initialise (une fois) puis ajoute une view pour ce composant
-        ensureApp(base, renderer).then((app) => {
-            if (cancelled || !hostRef.current) return;
+        ensureApp(renderer).then((app) => {
+            if (cancelled) return;
 
             // si la view existe déjà (prop maj), on la remplace pour pousser initialData
-            if (viewIdRef.current != null) app.removeView(viewIdRef.current);
-            viewIdRef.current = app.addView({
-                hostElement: hostRef.current,
-                initialData: { greeting },
-                viewConstraints: { maxWidth: Infinity, maxHeight: Infinity },
-            });
+            if (viewId != null) app.removeView(viewId);
+            setViewId(app.addView({
+                hostElement: document.querySelector('#' + id),
+                initialData: {greeting},
+                viewConstraints: {minWidth: 500, maxHeight: 500},
+            }));
         });
 
         return () => {
             cancelled = true;
-            if (appInstance && viewIdRef.current != null) {
-                appInstance.removeView(viewIdRef.current);
-                viewIdRef.current = null;
+            if (appInstance && viewId != null) {
+                appInstance.removeView(viewId);
+                setViewId(null);
             }
         };
-    }, [greeting, assetBase, renderer]);
+    }, [greeting, renderer]);
 
-    return <div ref={hostRef} className={className} style={{ width: "100%", height, ...style }} />;
+    return (<div id={id} className={className} style={{width: "100%", height, ...style}}/>);
 }
 
 export default FlutterWidget;

@@ -1,6 +1,6 @@
 {
-  "name": "react-lib",
-  "version": "1.0.0",
+  "name": "fuw-react-lib",
+  "version": "1.0.9",
   "type": "module",
   "exports": {
     ".": {
@@ -22,14 +22,10 @@
   "devDependencies": {
     "@biomejs/biome": "2.2.3",
     "@rsbuild/plugin-react": "^1.4.0",
-    "@rslib/core": "^0.13.2",
-    "@types/react": "^19.1.12",
+    "@rslib/core": "^0.13.3",
+    "@types/react": "^19.1.13",
+    "typescript": "^5.9.2",
     "react": "^19.1.1",
-    "typescript": "^5.9.2"
-  },
-  "peerDependencies": {
-    "react": ">=16.9.0",
-    "react-dom": ">=16.9.0"
-  },
-  "private": true
+    "react-dom": "^19.1.1"
+  }
 }

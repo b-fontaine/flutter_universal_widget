@@ -1,28 +1,35 @@
-import 'dart:js_interop' as js; // .dartify()
-import 'dart:ui_web' as ui_web; // getInitialData(viewId)
+import 'dart:js_interop' as js;
+import 'dart:ui_web' as ui_web;
 
 import 'package:flutter/widgets.dart';
 
-class MyWidget extends StatelessWidget {
-  const MyWidget({super.key});
+import 'multi_view_app.dart';
+import 'src/widget_view.dart';
+
+class WidgetMapper extends StatelessWidget {
+  const WidgetMapper({super.key});
 
   @override
   Widget build(BuildContext context) {
     final viewId = View.of(context).viewId;
     final js.JSAny? data = ui_web.views.getInitialData(viewId);
-    String greeting = 'Hello';
     final map = data?.dartify() as Map<Object?, Object?>?;
-    if (map != null && map['greeting'] is String) {
-      greeting = map['greeting'] as String;
-    }
+    final Map<Object?, Object?> viewData = (map == null) ? {} : map;
 
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: Center(child: Text(greeting)), // on remplace juste après:
+    return Container(
+      color: const Color(0xFFFFFFFF),
+      child: WidgetView(initialData: viewData),
     );
   }
 }
 
 void main() {
-  runWidget(const MyWidget()); // requis en multi-view (pas d’implicitView)
+  runWidget(
+    MultiViewApp(
+      viewBuilder: (context) => Directionality(
+        textDirection: TextDirection.ltr,
+        child: const WidgetMapper(),
+      ),
+    ),
+  );
 }
