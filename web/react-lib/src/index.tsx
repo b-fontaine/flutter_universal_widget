@@ -38,7 +38,7 @@ async function ensureApp(renderer?: "skwasm" | "canvaskit") {
                     config: {
                         assetBase: CDN_BASE,                                 // où sont les assets
                         entrypointBaseUrl: CDN_BASE,              // base pour main.dart.js
-                        //renderer,                                  // 'skwasm' ou 'canvaskit'
+                        renderer,                                  // 'skwasm' ou 'canvaskit'
                     },
                     onEntrypointLoaded: async (engineInitializer: any) => {
                         const engine = await engineInitializer.initializeEngine({
@@ -61,9 +61,7 @@ export type FlutterWidgetProps = {
     height?: number;
     className?: string;
     style?: React.CSSProperties;
-    /** Si tu auto-héberges les assets (CDN, /public/flutter, …) */
     assetBase?: string;
-    /** Forcer le renderer Flutter web si besoin */
     renderer?: "skwasm" | "canvaskit";
 };
 
@@ -89,7 +87,7 @@ export function FlutterWidget({
             setViewId(app.addView({
                 hostElement: document.querySelector('#' + id),
                 initialData: {greeting},
-                viewConstraints: {minWidth: 500, maxHeight: 500},
+                viewConstraints: {minWidth: 500, maxWidth: Infinity, minHeight: height, maxHeight: height},
             }));
         });
 

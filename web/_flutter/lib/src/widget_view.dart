@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_universal_widget/flutter_universal_widget.dart';
 
 class WidgetView extends StatelessWidget {
   final Map<Object?, Object?> initialData;
@@ -7,8 +8,8 @@ class WidgetView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (initialData['greeting'] != null) {
-      return Text(initialData['greeting'] as String);
+      return FlutterWidget(greeting: initialData['greeting'] as String);
     }
-    return const Text('Hello from Flutter!');
+    return const FlutterWidget(greeting: 'Hello from Flutter!');
   }
 }
